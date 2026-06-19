@@ -87,19 +87,63 @@ st.markdown("A premium machine learning deployment predicting daily closing pric
 # =====================================================================
 @st.cache_data(ttl=3600)  # Cache data for 1 hour
 def load_bitcoin_data(start_date, end_date):
+    # Try fetching from Binance API first (unblocked on Cloud providers like AWS)
+    try:
+        import time
+        # Convert start_date and end_date string to timestamps in milliseconds
+        start_ts = int(pd.to_datetime(start_date).timestamp() * 1000)
+        end_ts = int(pd.to_datetime(end_date).timestamp() * 1000)
+        
+        symbol = "BTCUSDT"
+        interval = "1d"
+        url = "https://api.binance.com/api/v3/klines"
+        
+        data = []
+        current_start = start_ts
+        while True:
+            params = {
+                "symbol": symbol,
+                "interval": interval,
+                "startTime": current_start,
+                "limit": 1000
+            }
+            res = requests.get(url, params=params, timeout=10).json()
+            if not res:
+                break
+            data.extend(res)
+            last_close_time = res[-1][6]
+            current_start = last_close_time + 1
+            if len(res) < 1000 or last_close_time >= end_ts or last_close_time > int(time.time() * 1000) - 86400000:
+                break
+            time.sleep(0.05)
+            
+        if data:
+            df = pd.DataFrame(data)
+            df = df[[0, 4]].copy()
+            df.columns = ['Date', 'close']
+            df['Date'] = pd.to_datetime(df['Date'], unit='ms')
+            df.set_index('Date', inplace=True)
+            df['close'] = df['close'].astype(float)
+            # Filter to start_date and end_date
+            df = df.loc[start_date:end_date]
+            if not df.empty:
+                return df
+    except Exception as binance_err:
+        pass # Fallback to yfinance if Binance fails
+        
+    # Fallback to yfinance
     ticker = "BTC-USD"
-    # Create custom requests session to bypass Yahoo Finance cloud IP blocking
     session = requests.Session()
     session.headers.update({
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, with Gecko) Chrome/120.0.0.0 Safari/537.36'
     })
-    
     df = yf.download(ticker, start=start_date, end=end_date, session=session, progress=False)
     if isinstance(df.columns, pd.MultiIndex):
         df.columns = df.columns.get_level_values(0)
     df = df[['Close']].copy()
     df.columns = ['close']
     return df
+
 
 
 # =====================================================================
