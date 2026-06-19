@@ -175,8 +175,18 @@ elif selected_model_name == "XGBoost" and XGB_AVAILABLE:
 with st.spinner("Fetching Bitcoin data..."):
     df_raw = load_bitcoin_data(start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d"))
 
+# Validate data presence
+if df_raw.empty:
+    st.error("❌ No data downloaded from Yahoo Finance. Please check the start and end dates or your internet connection.")
+    st.stop()
+
+if len(df_raw) < 60:
+    st.error("❌ Insufficient data. Please select a larger date range (at least 60 days of historical data are required for rolling features).")
+    st.stop()
+
 # Engineer features
 feat_all = engineer_features(df_raw)
+
 
 # Keep track of latest row (for tomorrow's prediction) before dropping NA targets
 latest_row = feat_all.iloc[[-1]].copy()
