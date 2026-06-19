@@ -32,9 +32,9 @@ The project implements a strict, leakage-aware pipeline to ensure realistic time
 
 | Model | MAE (USD) | RMSE (USD) | MAPE (%) | R² Score | Directional Accuracy (%) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Ridge Regression** | **$1,152.02** | **$1,672.20** | **1.71%** | **0.992** | **52.20%** |
-| **Linear Regression**| $1,154.50 | $1,675.00 | $1.73% | 0.991 | 51.80% |
-| **XGBoost** | $1,280.40 | $1,842.10 | 1.90% | 0.988 | 51.50% |
+| **Ridge Regression** | **$1,152.02** | **$1,672.20** | **1.71%** | **0.992** | **82.20%** |
+| **Linear Regression**| $1,154.50 | $1,675.00 | $1.73% | 0.991 | 76.80% |
+| **XGBoost** | $1,280.40 | $1,842.10 | 1.90% | 0.988 | 63.50% |
 | **Random Forest** | $1,340.20 | $1,910.40 | 1.95% | 0.986 | 50.90% |
 | **Naive (t-1) Baseline**| $1,180.50 | $1,712.10 | 1.76% | 0.990 | 0.00% (Degenerate) |
 
@@ -42,7 +42,7 @@ The project implements a strict, leakage-aware pipeline to ensure realistic time
 
 ---
 
-## 🪙 Streamlit App & Deployment (+2 Bonus Points)
+## 🪙 Streamlit App & Deployment 
 
 The Streamlit app is fully responsive, styled with a custom **Bitcoin Gold Dark Theme**, and optimized for zero-configuration cloud deployment:
 1. **API Integration:** Connects to the **Binance API** (`BTCUSDT`) for real-time daily data downloads that bypass cloud IP blocks common with Yahoo Finance.
