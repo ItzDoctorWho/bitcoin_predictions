@@ -23,6 +23,7 @@ A production-grade machine learning system designed to forecast daily Bitcoin cl
 
 ## 🛠️ System Architecture & ML Pipeline
 
+### 1. Data & ML Pipeline Flow
 ```mermaid
 graph TD
     A[Data Source: Binance API / yfinance fallback] --> B[Data Prep: Standardized Daily Closing Prices]
@@ -35,6 +36,43 @@ graph TD
     H --> I[Re-conversion to Price Space]
     I --> J[Performance Evaluation & Directional Backtesting]
 ```
+
+### 2. Software Architecture Layers
+The project is built using a decoupled multi-layer design pattern:
+
+```mermaid
+graph LR
+    subgraph UI_Layer [Application Layer]
+        App[Streamlit App] --> Plotly[Interactive Charts]
+    end
+    
+    subgraph Model_Layer [Modeling & Evaluation Layer]
+        ML[Scikit-Learn / XGBoost]
+        DL[TensorFlow Keras MLP/LSTM]
+        Eval[Evaluation Metrics Engine]
+    end
+    
+    subgraph Data_Layer [Data Access Layer]
+        Binance[Binance API Wrapper]
+        YF[yfinance API Wrapper]
+        Cache[st.cache_data Engine]
+    end
+    
+    subgraph Report_Layer [Reporting Layer]
+        PPTX[create_presentation.py] --> Slide[presentation.pptx]
+    end
+    
+    App --> Data_Layer
+    App --> Model_Layer
+    Model_Layer --> Data_Layer
+```
+
+* **Application Layer (`streamlit_app.py`):** Acts as the user interface. It manages dashboard layout, user parameters (date sliders, model selection, regularization alpha), and renders charts dynamically via **Plotly**.
+* **Modeling & Evaluation Layer:** Houses the training routines for both classical machine learning and deep learning (MLP, LSTM). This layer computes metrics (MAE, RMSE, MAPE, Directional Accuracy) in Price Space.
+* **Data Access Layer:** Responsible for fetching and preparing datasets. It abstracts the APIs (Binance REST endpoints and Yahoo Finance) and caches results in memory using Streamlit's caching mechanism.
+* **Reporting Layer (`create_presentation.py`):** An offline utility layer that uses `python-pptx` to compile the modeling methodology and results into a structured slide presentation.
+
+---
 
 
 ### 1. Data Retrieval Strategy
@@ -120,9 +158,3 @@ To automatically build the slide deck summarizing the project context, methodolo
 python create_presentation.py
 ```
 
----
-
-## 🔮 Future Enhancements
-* **Sentiment Integration:** Merge real-time social media sentiment indices (Twitter, Reddit) or Fear & Greed index APIs.
-* **Macroeconomic Indicators:** Supplement features with Federal Reserve interest rate decisions, inflation data (CPI), and the US Dollar Index (DXY).
-* **Deep Learning models:** Implement LSTM or Transformer architectures specialized for sequential inputs.
