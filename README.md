@@ -85,13 +85,13 @@ To ensure maximum availability during deployment, data ingestion in [streamlit_a
 Financial time-series modeling is highly susceptible to **data leakage** (look-ahead bias). The pipeline implements strict guards:
 * **Lag Features:** Past closing prices (Lags 1, 2, 3, 5, 7, 14, 21, 30) capture short-to-medium-term momentum.
 * **Rolling Statistics:** Minimum, maximum, mean, and standard deviation calculated over 7, 14, 21, 30, and 60 days. *Critically, all rolling metrics are shifted by 1 day (`.shift(1)`) so that today's feature vector only contains yesterday's realized statistics.*
-* **Momentum Indicators:** Normalized divergence metrics $\frac{\text{lag\_1} - \text{MA}}{\text{MA}}$ strictly use `lag_1` instead of the current close price.
+* **Momentum Indicators:** Normalized divergence metrics $\frac{\text{Lag}_1 - \text{MA}}{\text{MA}}$ strictly use `lag_1` instead of the current close price.
 * **Calendar Encodings:** Calendar periodicity is preserved by mapping the day of the week and month to a 2D unit circle using Sine and Cosine transformations:
-  $$\text{day\_sin} = \sin\left(\frac{2\pi \cdot \text{dayofweek}}{7}\right), \quad \text{day\_cos} = \cos\left(\frac{2\pi \cdot \text{dayofweek}}{7}\right)$$
+  $$\text{DaySin} = \sin\left(\frac{2\pi \cdot \text{DayOfWeek}}{7}\right), \quad \text{DayCos} = \cos\left(\frac{2\pi \cdot \text{DayOfWeek}}{7}\right)$$
 
 ### 3. Model Target Formulation
 Rather than training models on raw non-stationary price points (which leads to models that simply memorize the last price), we train the models on **next-day percentage return**:
-$$\text{target\_return}_{t} = \frac{\text{close}_{t+1} - \text{close}_{t}}{\text{close}_{t}}$$
+$$\text{TargetReturn}_{t} = \frac{\text{Close}_{t+1} - \text{Close}_{t}}{\text{Close}_{t}}$$
 This bounds the distribution of the target variable and ensures the learning algorithm generalizes to high-growth regime shifts.
 
 ### 4. Chronological Validation Strategy
