@@ -210,6 +210,13 @@ if XGB_AVAILABLE:
     model_options.append("XGBoost")
 selected_model_name = st.sidebar.selectbox("Choose Main Forecasting Model", model_options)
 
+# Default hyperparameters (used for background model training and comparison table)
+ridge_alpha = 10.0
+rf_estimators = 100
+rf_depth = 15
+xgb_lr = 0.05
+xgb_estimators = 100
+
 st.sidebar.markdown("""
 ---
 ### Model Parameters
@@ -222,6 +229,7 @@ elif selected_model_name == "Random Forest":
 elif selected_model_name == "XGBoost" and XGB_AVAILABLE:
     xgb_lr = st.sidebar.slider("Learning Rate", 0.01, 0.2, 0.05, step=0.01)
     xgb_estimators = st.sidebar.slider("N Estimators", 50, 300, 100, step=50)
+
 
 # Load data
 with st.spinner("Fetching Bitcoin data..."):
