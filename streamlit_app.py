@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import yfinance as yf
 import plotly.graph_objects as go
+import requests
 from datetime import datetime, timedelta
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression, Ridge
@@ -87,12 +88,19 @@ st.markdown("A premium machine learning deployment predicting daily closing pric
 @st.cache_data(ttl=3600)  # Cache data for 1 hour
 def load_bitcoin_data(start_date, end_date):
     ticker = "BTC-USD"
-    df = yf.download(ticker, start=start_date, end=end_date, progress=False)
+    # Create custom requests session to bypass Yahoo Finance cloud IP blocking
+    session = requests.Session()
+    session.headers.update({
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    })
+    
+    df = yf.download(ticker, start=start_date, end=end_date, session=session, progress=False)
     if isinstance(df.columns, pd.MultiIndex):
         df.columns = df.columns.get_level_values(0)
     df = df[['Close']].copy()
     df.columns = ['close']
     return df
+
 
 # =====================================================================
 # FEATURE ENGINEERING
